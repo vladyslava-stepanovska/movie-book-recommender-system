@@ -29,6 +29,7 @@ The system is enhanced with **Reddit-based sentiment analysis**, allowing recomm
 ---
 
 ## Project Structure
+```
 movie-book-recommender-system
 │
 ├── notebooks
@@ -40,7 +41,7 @@ movie-book-recommender-system
 │ └── 5_reddit_enrichment_movies.ipynb
 │
 └── README.md
-
+```
 
 
 
@@ -100,13 +101,6 @@ The system successfully:
 - Generates personalized recommendations
 - Bridges domains (books ↔ movies)
 - Improves ranking quality using social sentiment signals
-
----
-
-## References
-- Kotkov et al. (2021) – Tag relevance prediction  
-- Vig et al. (2012) – Tag genome  
-- Kotkov et al. (2022) – Tag Genome Dataset for Books  
 
 ---
 
