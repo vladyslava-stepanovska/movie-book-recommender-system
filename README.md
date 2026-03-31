@@ -39,12 +39,6 @@ movie-book-recommender-system
 │ ├── 4_reddit_enrichment_books.ipynb
 │ └── 5_reddit_enrichment_movies.ipynb
 │
-├── model_output
-│ ├── book_user_recs.csv
-│ ├── book_to_movies.json
-│ ├── movie_user_recs.csv
-│ └── movies_to_books.json
-│
 └── README.md
 
 
