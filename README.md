@@ -17,14 +17,50 @@ The system is enhanced with **Reddit-based sentiment analysis**, allowing recomm
 - Topic modeling (LDA) + clustering (K-Means)
 - Reddit API integration for sentiment-based reranking
 
+### Pipeline
+
+```mermaid
+flowchart LR
+    A[Tag Genome data<br/>books + movies] --> B[Preprocessing<br/>491 shared tags, 1980+ movies]
+    B --> C[ALS collaborative filtering]
+    B --> D[LDA + K-Means<br/>content-based]
+    C --> E[Hybrid within-domain<br/>top-15 per user]
+    D --> E
+    B --> F[PCA 40-dim + LSH<br/>cross-domain neighbours]
+    E --> G[Reddit sentiment<br/>reranking - TextBlob]
+    F --> G
+    G --> H[Final recommendations]
+```
+
+---
+
+## Results
+
+**Scale.** The pipeline runs in PySpark on ~25M movie ratings (movies released 1980 or later, out of 28.5M) and ~17M book and movie tag-relevance scores, aligned on **491 tags** shared by both domains. The cross-domain model links **9,374 books** with **4,061 movies**.
+
+**Within-domain ranking quality (books)**, evaluated with PySpark `RankingMetrics` on 9,542 test users:
+
+| Metric | @5 | @15 |
+|---|---|---|
+| Precision | 0.213 | 0.071 |
+| Recall | 0.359 | 0.359 |
+| NDCG | – | **0.459** |
+
+*Note:* the metrics are computed on recommended items that also appear in a user's test set (only these have a known rating), so they are optimistic compared to a full-catalogue evaluation. The movie side could only be evaluated on a very small overlap of users, so we do not report it here.
+
+The system:
+- Generates 15 personalized recommendations for every user in both domains
+- Bridges domains (books ↔ movies) through a shared tag space
+- Reranks the final lists using Reddit community sentiment
+
 ---
 
 ## Tech Stack
 - **Python**
 - pandas, numpy, scikit-learn
 - NLP: TextBlob
-- PySpark (RankingMetrics)
-- Reddit API
+- PySpark (ALS, RankingMetrics)
+- Reddit API (PRAW)
 
 ---
 
@@ -34,16 +70,14 @@ movie-book-recommender-system
 │
 ├── notebooks
 │ ├── 0_preprocessing.ipynb
-│ ├── 1_within_domain_model.ipynb
-│ ├── 2_cross_domain_model.ipynb
+│ ├── 1_within-domain_model.ipynb
+│ ├── 2_cross-domain_model.ipynb
 │ ├── 3_evaluation.ipynb
 │ ├── 4_reddit_enrichment_books.ipynb
 │ └── 5_reddit_enrichment_movies.ipynb
 │
 └── README.md
 ```
-
-
 
 ---
 
@@ -88,21 +122,16 @@ movie-book-recommender-system
 ---
 
 ## Data
-Due to size constraints, raw datasets are not included.
+The project uses the **[Tag Genome Dataset for Books and Movies](https://grouplens.org/datasets/book-genome/)** (Kotkov et al., 2022, GroupLens). It contains book and movie metadata, user ratings, tag-relevance scores (`tagdl.csv`) and a book–movie tag matching file (`matching.csv`), which makes cross-domain recommendation possible.
 
-To reproduce results:
-- Use publicly available book and movie datasets
-- Ensure tag alignment between domains
+Due to size constraints, the raw data is not included in this repository. To reproduce the results, download the dataset and place it in `./raw_data/`.
 
 ---
 
-## Results
-The system successfully:
-- Generates personalized recommendations
-- Bridges domains (books ↔ movies)
-- Improves ranking quality using social sentiment signals
+## Authors
+Developed in a team of three as part of a university project. We all collaborated on the overall design of the system.
 
----
-
-## Author
-Developed in a team of three as part of a university project.
+**My contributions:**
+- Built the complete Reddit sentiment enrichment (notebooks 4 and 5): data collection via the Reddit API, sentiment scoring and reranking
+- Contributed to the model evaluation
+- Contributed to combining the components into the full system
